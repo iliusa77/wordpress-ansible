@@ -1,0 +1,29 @@
+---
+- name: Update Package Cache (apt/Ubuntu)
+  apt:
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install software
+  package:
+    name:
+      - pwgen
+      - letsencrypt
+      - nginx 
+      - php 
+      - php-fpm 
+      - php-mysql 
+      - php-curl 
+      - php-gd 
+    state: present
+
+- name: Uninstall apache2
+  package:
+    name:
+      - apache2
+    state: absent
+
+
+
+
+

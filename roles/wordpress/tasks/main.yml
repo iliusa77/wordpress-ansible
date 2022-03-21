@@ -1,0 +1,67 @@
+---
+- name: Configure /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    line: "127.0.0.1 {{ WP_DOMAIN }}"
+
+- name: Creation Wordpress folders
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  with_items:
+    - "{{ WP_PATH }}/public" 
+    - "{{ WP_PATH }}/logs"
+
+- name: Download and extract latest Wordpress archieve 
+  unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: "{{ WP_PATH }}/public"
+    remote_src: yes
+  register: download_wordpress
+  until: download_wordpress is not failed
+  retries: 5
+  delay: 3
+
+- name: Create wp-config.php
+  template: 
+    src: wp-config.php.j2
+    dest: "{{ WP_PATH }}/public/wordpress/wp-config.php"
+
+- name: Create Wordpress Nginx virtualhost
+  template: 
+    src: nginx_wordpress_virtualhost.j2
+    dest: "/etc/nginx/sites-available/{{ WP_DOMAIN }}"
+
+- name: Enable Wordpress Nginx virtualbox
+  file:
+    src: "/etc/nginx/sites-available/{{ WP_DOMAIN }}" 
+    dest: "/etc/nginx/sites-enabled/{{ WP_DOMAIN }}"
+    state: link
+  
+- name: "chown www-data {{ WP_PATH }}/public/wordpress"
+  file:
+    path: "{{ WP_PATH }}/public/wordpress"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+
+- name: Restart php-fpm
+  shell: systemctl restart php7.2-fpm && systemctl restart nginx
+
+- name: Silent Wordpress installation
+  shell: "curl \"http://{{ WP_DOMAIN }}/wp-admin/install.php?step=2\" \
+      --data-urlencode \"weblog_title={{ WP_DOMAIN }}\" \
+      --data-urlencode \"user_name={{ WP_ADMIN_USERNAME }}\" \
+      --data-urlencode \"admin_email={{ WP_ADMIN_EMAIL }}\" \
+      --data-urlencode \"admin_password={{ WP_ADMIN_PASSWORD }}\" \
+      --data-urlencode \"admin_password2={{ WP_ADMIN_PASSWORD }}\" \
+      --data-urlencode \"pw_weak=1\""
+  args:
+    executable: /bin/bash
+
+
+

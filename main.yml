@@ -1,0 +1,18 @@
+---
+- hosts: wordpress-server
+  become: yes
+  environment:
+    WP_DOMAIN: "{{ WP_DOMAIN }}"
+    WP_ADMIN_USERNAME: "{{ WP_ADMIN_USERNAME }}"
+    WP_ADMIN_PASSWORD: "{{ WP_ADMIN_PASSWORD }}"
+    WP_ADMIN_EMAIL: "{{ WP_ADMIN_EMAIL }}"
+    WP_DB_NAME: "{{ WP_DB_NAME }}"
+    WP_DB_USERNAME: "{{ WP_DB_USERNAME }}"
+    WP_PATH: "{{ WP_PATH }}"
+    WP_DB_PASSWORD: "{{ WP_DB_PASSWORD }}"
+    MYSQL_ROOT_PASSWORD: "{{ MYSQL_ROOT_PASSWORD }}"
+
+  roles:
+    - prerequisites
+    - database
+    - wordpress

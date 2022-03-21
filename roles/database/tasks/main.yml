@@ -1,0 +1,29 @@
+---
+- name: Mysql debconf-set-selections
+  shell: "echo \"mysql-server-5.7 mysql-server/root_password password {{ MYSQL_ROOT_PASSWORD }}\" | sudo debconf-set-selections && echo \"mysql-server-5.7 mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD\" | sudo debconf-set-selections"
+
+- name: Update Package Cache (apt/Ubuntu)
+  apt:
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install database software
+  package:
+    name:
+      - mysql-server
+    state: present
+
+- name: Create mysql Wordpress database
+  shell:
+    cmd: |   
+      mysql -u root -p{{ MYSQL_ROOT_PASSWORD }} << EOF
+      CREATE USER "{{ WP_DB_USERNAME }}"@"localhost" IDENTIFIED BY "{{ WP_DB_PASSWORD }}";
+      CREATE DATABASE {{ WP_DB_NAME }};
+      GRANT ALL ON {{ WP_DB_NAME }}.* TO "{{ WP_DB_USERNAME }}"@"localhost";
+      EOF
+  args:
+    executable: /bin/bash
+  ignore_errors: true
+
+
+
