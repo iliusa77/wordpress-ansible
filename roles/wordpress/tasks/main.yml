@@ -49,6 +49,10 @@
     owner: www-data
     group: www-data
 
+- name: Restart php7.2-fpm
+  shell: systemctl restart php7.2-fpm && systemctl restart nginx
+  when: ansible_distribution_major_version == "18"
+
 - name: Restart php7.4-fpm
   shell: systemctl restart php7.4-fpm && systemctl restart nginx
   when: ansible_distribution_major_version == "20"
