@@ -64,5 +64,32 @@
   args:
     executable: /bin/bash
 
+- name: Download wp-cli
+  get_url:
+    url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    dest: /usr/local/bin/wp
+    mode: u=rwx,g=rwx,o=rx
+  register: download_wp_cli
+  until: download_wp_cli is not failed
+  retries: 5
+  delay: 3
 
+- name: Wordpress plugins customisation
+  shell: "wp plugin install {{ item }} --activate --path={{ WP_PATH }}/public/wordpress --allow-root"
+  with_items:
+    - user-switching
+    - all-in-one-wp-security-and-firewall
+    - cyr-and-lat
+    - litespeed-cache
+    - all-in-one-seo-pack
+    - add-to-any
+    - contact-form-7
+    - easy-watermark
+    - prodalet
+    - visitors-traffic-real-time-statistics
+
+- name: Wordpress themes customisation
+  shell: "wp theme install {{ item }} --activate --path={{ WP_PATH }}/public/wordpress --allow-root"
+  with_items:
+    - hello-elementor
 
