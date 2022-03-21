@@ -14,6 +14,13 @@ server {
 
   location ~ \.php$ {
     include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+{% if ansible_distribution_major_version == "18" %}
+	  fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+{% elif ansible_distribution_major_version == "20" %}
+    fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+{% else %}
+	  fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+{% endif %}
+    
   }
 }

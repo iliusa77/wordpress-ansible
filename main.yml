@@ -1,5 +1,6 @@
 ---
 - hosts: wordpress-server
+  gather_facts: yes
   become: yes
   environment:
     WP_DOMAIN: "{{ WP_DOMAIN }}"
