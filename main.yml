@@ -1,6 +1,5 @@
 ---
 - hosts "{{ hosts }}"
-  #hosts: wordpress-server
   gather_facts: yes
   become: yes
   environment:
